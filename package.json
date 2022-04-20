@@ -1,5 +1,5 @@
 {
-  "name": "node-window-manager",
+  "name": "@rmw/node-window-manager",
   "version": "2.2.4",
   "description": "Manage windows in macOS, Windows and Linux",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sentialx/node-window-manager.git"
+    "url": "git+https://github.com/gcxfd/node-window-manager.git"
   },
   "keywords": [
     "window-manager",
@@ -24,12 +24,12 @@
     "linux",
     "windows"
   ],
-  "author": "sentialx",
+  "author": "gcxfd",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sentialx/node-window-manager/issues"
+    "url": "https://github.com/gcxfd/node-window-manager/issues"
   },
-  "homepage": "https://github.com/sentialx/node-window-manager#readme",
+  "homepage": "https://github.com/gcxfd/node-window-manager#readme",
   "devDependencies": {
     "@types/node": "13.11.1",
     "node-gyp": "^6.1.0",

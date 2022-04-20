@@ -8,8 +8,8 @@ import { resolve } from 'path';
 let addon: any;
 
 if (platform() === "win32" || platform() === "darwin") {
-  const ADDON_PATH = (process.env.NODE_ENV != "dev") ? "Release" : "Debug";
-  addon = require(`node-gyp-build`)(resolve(__dirname, '..'));
+  //const ADDON_PATH = (process.env.NODE_ENV != "dev") ? "Release" : "Debug";
+  addon = require(resolve(__dirname, '../build/Release/addon.node'));
 }
 
 let interval: any = null;
@@ -34,7 +34,7 @@ class WindowManager extends EventEmitter {
       if (event === "window-activated") {
         interval = setInterval(async () => {
           const win = addon.getActiveWindow();
-          
+
           if (lastId !== win) {
             lastId = win;
             this.emit("window-activated", new Window(win));
