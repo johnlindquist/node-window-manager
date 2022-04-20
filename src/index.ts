@@ -9,7 +9,7 @@ let addon: any;
 
 if (platform() === "win32" || platform() === "darwin") {
   //const ADDON_PATH = (process.env.NODE_ENV != "dev") ? "Release" : "Debug";
-  addon = require(resolve(__dirname, '../build/Release/addon.node'));
+  addon = require('../build/Release/addon.node');
 }
 
 let interval: any = null;
