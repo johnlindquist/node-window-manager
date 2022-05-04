@@ -6,13 +6,14 @@
       "cflags_cc!": [ "-fno-exceptions" ],
       "conditions":[
         ["OS=='win'", {
-      	  "sources": [ "lib/windows.cc" ]
+      	  "sources": [ "lib/windows.cc" ],
+          "libraries": ["Dwmapi"]
       	}],
         ["OS=='mac'", {
       	  "sources": [ "lib/macos.mm" ],
           "libraries": [ '-framework AppKit', '-framework ApplicationServices' ]
       	}]
-      ], 
+      ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")"
       ],
