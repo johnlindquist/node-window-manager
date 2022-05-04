@@ -5,6 +5,7 @@
 #include <shtypes.h>
 #include <string>
 #include <windows.h>
+#include <dwmapi.h>
 
 typedef int (__stdcall* lp_GetScaleFactorForMonitor) (HMONITOR, DEVICE_SCALE_FACTOR*);
 
@@ -42,7 +43,7 @@ Process getWindowProcess (HWND handle) {
     wchar_t exeName[MAX_PATH]{};
 
     QueryFullProcessImageNameW (pHandle, 0, exeName, &dwSize);
-    
+
     CloseHandle(pHandle);
 
     auto wspath (exeName);
@@ -189,7 +190,8 @@ Napi::Object getWindowBounds (const Napi::CallbackInfo& info) {
     auto handle{ getValueFromCallbackData<HWND> (info, 0) };
 
     RECT rect{};
-    GetWindowRect (handle, &rect);
+    //GetWindowRect (handle, &rect);
+    DwmGetWindowAttribute(handle, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof rect);
 
     Napi::Object bounds{ Napi::Object::New (env) };
 
