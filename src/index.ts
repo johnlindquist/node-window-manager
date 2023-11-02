@@ -1,17 +1,10 @@
 import { Window } from "./classes/window"
 import { EventEmitter } from "events"
-import { platform } from "os"
 import { Monitor } from "./classes/monitor"
 import { EmptyMonitor } from "./classes/empty-monitor"
-import { resolve } from "path"
+import bindings from "bindings"
 
-let addon: any
-
-if (platform() === "win32" || platform() === "darwin") {
-  const ADDON_PATH = process.env.NODE_ENV != "dev" ? "Release" : "Debug"
-  addon = require(`node-gyp-build`)(resolve(__dirname, ".."))
-  //console.log("!!!!!!!!!!!!",__dirname, resolve(__dirname, ".."));
-}
+const addon = bindings("addon.node")
 
 let interval: any = null
 
