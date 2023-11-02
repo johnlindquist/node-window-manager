@@ -55,7 +55,7 @@ AXUIElementRef getAXWindow(int pid, int handle) {
     CGWindowID windowId;
     _AXUIElementGetWindow(window, &windowId);
 
-    if (windowId == handle) {
+    if (windowId == static_cast<unsigned int>(handle)) {
       // Retain returned window so it doesn't get released with rest of list
       CFRetain(window);
       CFRelease(windows);
@@ -117,14 +117,14 @@ Napi::Array getWindows(const Napi::CallbackInfo &info) {
     auto app = [NSRunningApplication runningApplicationWithProcessIdentifier: [ownerPid intValue]];
     auto path = (app && app.bundleURL && app.bundleURL.path) ? [app.bundleURL.path UTF8String] : "";
 
-    if (app && path != "") {
+     if (app && strcmp(path, "") != 0)  {
       vec.push_back(Napi::Number::New(env, [windowNumber intValue]));
     }
   }
 
   auto arr = Napi::Array::New(env, vec.size());
 
-  for (int i = 0; i < vec.size(); i++) {
+  for (size_t i = 0; i < vec.size(); i++) {
     arr[i] = vec[i];
   }
 
