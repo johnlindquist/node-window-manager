@@ -5,8 +5,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "exports": {
     "import": "./dist/index.js",
     "require": "./dist/index.cjs",
@@ -15,10 +16,10 @@
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*",
-    "binding.gyp",
-    "lib/**/*",
-    "build/**/*"
+    "./dist/**/*",
+    "./binding.gyp",
+    "./lib/**/*",
+    "./build/**/*"
   ],
   "scripts": {
     "build-gyp": "node-gyp rebuild",
