@@ -2,6 +2,9 @@
   "name": "@johnlindquist/node-window-manager",
   "version": "0.0.0-development",
   "description": "Manage windows in macOS, Windows and Linux",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "index.cjs",
   "module": "index.js",
   "exports": {
