@@ -1,5 +1,5 @@
 {
-  "name": "@rmw/node-window-manager",
+  "name": "@johnlindquist/node-window-manager",
   "version": "0.0.0-development",
   "description": "Manage windows in macOS, Windows and Linux",
   "main": "index.cjs",
