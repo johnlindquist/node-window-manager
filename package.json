@@ -18,7 +18,7 @@
     "index.js",
     "binding.gyp",
     "index.d.ts",
-    "frontmost.mm",
+    "lib/**/*",
     "build/**/*"
   ],
   "scripts": {
