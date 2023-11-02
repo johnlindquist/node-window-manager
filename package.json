@@ -38,6 +38,7 @@
   "homepage": "https://github.com/johnlindquist/node-window-manager#readme",
   "devDependencies": {
     "@types/node": "20.8.10",
+    "esbuild": "^0.19.5",
     "node-gyp": "^10.0.0",
     "semantic-release": "^21.0.7",
     "tslint": "6.1.1",
