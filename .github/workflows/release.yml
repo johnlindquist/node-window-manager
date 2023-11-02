@@ -1,4 +1,4 @@
-name: Publish globals
+name: Release
 
 on:
   push:
