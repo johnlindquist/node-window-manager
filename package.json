@@ -14,6 +14,13 @@
   },
   "source": "index.ts",
   "types": "dist/index.d.ts",
+  "files": [
+    "index.js",
+    "binding.gyp",
+    "index.d.ts",
+    "frontmost.mm",
+    "build/**/*"
+  ],
   "scripts": {
     "build-gyp": "node-gyp rebuild",
     "build-esm": "esbuild src/index.ts --bundle --platform=node --packages=external --target=node18 --format=esm --outfile=index.js",
