@@ -115,7 +115,7 @@ Napi::Array getWindows(const Napi::CallbackInfo &info) {
     NSNumber *windowNumber = info[(id)kCGWindowNumber];
 
     auto app = [NSRunningApplication runningApplicationWithProcessIdentifier: [ownerPid intValue]];
-    auto path = app ? [app.bundleURL.path UTF8String] : "";
+    auto path = (app && app.bundleURL && app.bundleURL.path) ? [app.bundleURL.path UTF8String] : "";
 
     if (app && path != "") {
       vec.push_back(Napi::Number::New(env, [windowNumber intValue]));
@@ -147,7 +147,7 @@ Napi::Number getActiveWindow(const Napi::CallbackInfo &info) {
 
     auto app = [NSRunningApplication runningApplicationWithProcessIdentifier: [ownerPid intValue]];
 
-    if (![app isActive]) {
+    if (app && ![app isActive]) {
       continue;
     }
 
@@ -171,6 +171,9 @@ Napi::Object initWindow(const Napi::CallbackInfo &info) {
   if (wInfo) {
     NSNumber *ownerPid = wInfo[(id)kCGWindowOwnerPID];
     NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier: [ownerPid intValue]];
+    if (!app || !app.bundleURL || !app.bundleURL.path) {
+      return Napi::Object::New(env);
+    }
 
     auto obj = Napi::Object::New(env);
     obj.Set("processId", [ownerPid intValue]);
@@ -193,6 +196,9 @@ Napi::String getWindowTitle(const Napi::CallbackInfo &info) {
 
   if (wInfo) {
     NSString *windowName = wInfo[(id)kCGWindowOwnerName];
+    if (!windowName) {
+      return Napi::String::New(env, "");
+    }
     return Napi::String::New(env, [windowName UTF8String]);
   }
 

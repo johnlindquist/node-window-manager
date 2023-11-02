@@ -5,7 +5,6 @@
 #include <shtypes.h>
 #include <string>
 #include <windows.h>
-#include <dwmapi.h>
 
 typedef int (__stdcall* lp_GetScaleFactorForMonitor) (HMONITOR, DEVICE_SCALE_FACTOR*);
 
@@ -43,7 +42,7 @@ Process getWindowProcess (HWND handle) {
     wchar_t exeName[MAX_PATH]{};
 
     QueryFullProcessImageNameW (pHandle, 0, exeName, &dwSize);
-
+    
     CloseHandle(pHandle);
 
     auto wspath (exeName);
@@ -190,8 +189,7 @@ Napi::Object getWindowBounds (const Napi::CallbackInfo& info) {
     auto handle{ getValueFromCallbackData<HWND> (info, 0) };
 
     RECT rect{};
-    //GetWindowRect (handle, &rect);
-    DwmGetWindowAttribute(handle, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof rect);
+    GetWindowRect (handle, &rect);
 
     Napi::Object bounds{ Napi::Object::New (env) };
 
@@ -214,6 +212,7 @@ Napi::String getWindowTitle (const Napi::CallbackInfo& info) {
 
     std::wstring ws (t);
     std::string title = toUtf8 (ws);
+    title.insert(0,"--") ;
 
     return Napi::String::New (env, title);
 }
@@ -285,13 +284,20 @@ Napi::Boolean setWindowBounds (const Napi::CallbackInfo& info) {
     return Napi::Boolean::New (env, b);
 }
 
-Napi::Boolean setWindowOwner (const Napi::CallbackInfo& info) {
+Napi::Boolean setWindowParent (const Napi::CallbackInfo& info) {
     Napi::Env env{ info.Env () };
 
     auto handle{ getValueFromCallbackData<HWND> (info, 0) };
-    auto newOwner{ static_cast<LONG_PTR> (info[1].As<Napi::Number> ().Int64Value ()) };
+    auto newOwner{ getValueFromCallbackData<HWND> (info, 1) };
 
-    SetWindowLongPtrA (handle, GWLP_HWNDPARENT, newOwner);
+    RECT rect{};
+    GetClientRect (newOwner, &rect);
+
+    //SetWindowLongPtrA (handle, GWLP_HWNDPARENT, newOwner);
+    //SetWindowLongPtrA (handle, GWL_STYLE, WS_CHILD | WS_VISIBLE);
+    SetParent(handle, newOwner) ;
+    SetWindowPos(handle, 0, rect.left, rect.top, rect.right, rect.bottom, 0) ;
+    SetActiveWindow(handle) ;
 
     return Napi::Boolean::New (env, true);
 }
@@ -410,7 +416,7 @@ Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set (Napi::String::New (env, "setWindowOpacity"), Napi::Function::New (env, setWindowOpacity));
     exports.Set (Napi::String::New (env, "toggleWindowTransparency"),
                  Napi::Function::New (env, toggleWindowTransparency));
-    exports.Set (Napi::String::New (env, "setWindowOwner"), Napi::Function::New (env, setWindowOwner));
+    exports.Set (Napi::String::New (env, "setWindowParent"), Napi::Function::New (env, setWindowParent));
     exports.Set (Napi::String::New (env, "initWindow"), Napi::Function::New (env, initWindow));
     exports.Set (Napi::String::New (env, "getWindowBounds"), Napi::Function::New (env, getWindowBounds));
     exports.Set (Napi::String::New (env, "getWindowTitle"), Napi::Function::New (env, getWindowTitle));

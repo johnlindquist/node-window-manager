@@ -1,0 +1,38 @@
+name: Publish globals
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+      - alpha
+    tags:
+      - "*"
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.15.0"
+
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Semantic Release
+        run: |
+          npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
