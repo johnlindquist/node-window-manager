@@ -7,3 +7,5 @@ dist
 .build
 macos
 prebuilds
+.clj-kondo/
+.lsp/

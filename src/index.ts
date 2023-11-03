@@ -87,6 +87,18 @@ class WindowManager extends EventEmitter {
     if (!addon || !addon.createProcess) return
     return addon.createProcess(path, cmd)
   }
+
+  hideInstantly = (handle: Buffer) => {
+    if (!addon || !addon.hideInstantly) return
+    let handleNumber = handle.readUInt32LE(0)
+    return addon.hideInstantly(handleNumber)
+  }
+
+  forceWindowPaint = (handle: Buffer) => {
+    if (!addon || !addon.forceWindowPaint) return
+    let handleNumber = handle.readUInt32LE(0)
+    return addon.forceWindowPaint(handleNumber)
+  }
 }
 
 const windowManager = new WindowManager()

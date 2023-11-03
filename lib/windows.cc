@@ -402,6 +402,37 @@ Napi::Object getMonitorInfo (const Napi::CallbackInfo& info) {
     return obj;
 }
 
+Napi::Boolean hideInstantly(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1 || !info[0].IsNumber()) {
+        Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
+    }
+
+    uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
+    HWND handle = reinterpret_cast<HWND>(handleNumber);
+
+    BOOL result = ShowWindow(handle, SW_HIDE);
+
+    return Napi::Boolean::New(env, result);
+}
+
+Napi::Boolean forceWindowPaint(const Napi::CallbackInfo& info) {
+    Napi::Env env{ info.Env() };
+
+    if (info.Length() < 1 || !info[0].IsNumber()) {
+        Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
+    }
+
+    uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
+    HWND handle = reinterpret_cast<HWND>(handleNumber);
+
+    BOOL b{ RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW) };
+
+    return Napi::Boolean::New(env, b);
+}
+
+
 Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set (Napi::String::New (env, "getActiveWindow"), Napi::Function::New (env, getActiveWindow));
     exports.Set (Napi::String::New (env, "getMonitorFromWindow"), Napi::Function::New (env, getMonitorFromWindow));
@@ -427,6 +458,8 @@ Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set (Napi::String::New (env, "getMonitors"), Napi::Function::New (env, getMonitors));
     exports.Set (Napi::String::New (env, "createProcess"), Napi::Function::New (env, createProcess));
     exports.Set (Napi::String::New (env, "getProcessMainWindow"), Napi::Function::New (env, getProcessMainWindow));
+    exports.Set(Napi::String::New(env, "forceWindowPaint"), Napi::Function::New(env, forceWindowPaint));
+    exports.Set(Napi::String::New(env, "hideInstantly"), Napi::Function::New(env, hideInstantly));
 
     return exports;
 }
