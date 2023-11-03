@@ -403,7 +403,7 @@ Napi::Object getMonitorInfo (const Napi::CallbackInfo& info) {
 }
 
 Napi::Boolean hideInstantly(const Napi::CallbackInfo& info) {
-    Napi::Env env = info.Env();
+    Napi::Env env{ info.Env() };
 
     if (info.Length() < 1 || !info[0].IsNumber()) {
         Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
@@ -412,10 +412,11 @@ Napi::Boolean hideInstantly(const Napi::CallbackInfo& info) {
     uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
     HWND handle = reinterpret_cast<HWND>(handleNumber);
 
-    BOOL result = ShowWindow(handle, SW_HIDE);
+    BOOL b{ SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOACTIVATE) };
 
-    return Napi::Boolean::New(env, result);
+    return Napi::Boolean::New(env, b);
 }
+
 
 Napi::Boolean forceWindowPaint(const Napi::CallbackInfo& info) {
     Napi::Env env{ info.Env() };
