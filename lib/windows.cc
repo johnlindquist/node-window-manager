@@ -403,7 +403,7 @@ Napi::Object getMonitorInfo (const Napi::CallbackInfo& info) {
 }
 
 Napi::Boolean hideInstantly(const Napi::CallbackInfo& info) {
-    Napi::Env env{ info.Env() };
+    Napi::Env env = info.Env();
 
     if (info.Length() < 1 || !info[0].IsNumber()) {
         Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
@@ -412,9 +412,17 @@ Napi::Boolean hideInstantly(const Napi::CallbackInfo& info) {
     uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
     HWND handle = reinterpret_cast<HWND>(handleNumber);
 
-    BOOL b{ SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOACTIVATE) };
+    // Get the current window styles
+    LONG styles = GetWindowLong(handle, GWL_STYLE);
+    LONG exStyles = GetWindowLong(handle, GWL_EXSTYLE);
 
-    return Napi::Boolean::New(env, b);
+    // Remove the WS_EX_LAYERED, WS_EX_TRANSPARENT and WS_OVERLAPPEDWINDOW styles
+    SetWindowLong(handle, GWL_STYLE, styles & ~WS_OVERLAPPEDWINDOW);
+    SetWindowLong(handle, GWL_EXSTYLE, exStyles & ~(WS_EX_LAYERED | WS_EX_TRANSPARENT));
+
+    BOOL result = ShowWindow(handle, SW_HIDE);
+
+    return Napi::Boolean::New(env, result);
 }
 
 
