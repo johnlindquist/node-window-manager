@@ -18,8 +18,7 @@
   "files": [
     "./dist/**/*",
     "./binding.gyp",
-    "./lib/**/*",
-    "./build/**/*"
+    "./lib/**/*"
   ],
   "scripts": {
     "build-gyp": "node-gyp rebuild",
