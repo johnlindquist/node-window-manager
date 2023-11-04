@@ -12,7 +12,10 @@
         ["OS=='mac'", {
       	  "sources": [ "lib/macos.mm" ],
           "libraries": [ '-framework AppKit', '-framework ApplicationServices' ]
-      	}]
+      	}],
+        ["OS=='linux'", {
+          "sources": [ "lib/linux.cpp" ]
+        }]
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")"
