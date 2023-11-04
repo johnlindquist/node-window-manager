@@ -99,6 +99,12 @@ class WindowManager extends EventEmitter {
     let handleNumber = handle.readUInt32LE(0)
     return addon.forceWindowPaint(handleNumber)
   }
+
+  setWindowAsPopup = (handle: Buffer) => {
+    if (!addon || !addon.setWindowAsPopup) return
+    let handleNumber = handle.readUInt32LE(0)
+    return addon.setWindowAsPopup(handleNumber)
+  }
 }
 
 const windowManager = new WindowManager()

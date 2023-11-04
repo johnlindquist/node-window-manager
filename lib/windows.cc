@@ -441,6 +441,33 @@ Napi::Boolean forceWindowPaint(const Napi::CallbackInfo& info) {
     return Napi::Boolean::New(env, b);
 }
 
+Napi::Boolean setWindowAsPopup(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1 || !info[0].IsNumber()) {
+        Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
+    }
+
+    uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
+    HWND handle = reinterpret_cast<HWND>(handleNumber);
+
+    // Get the current window style
+    LONG lStyle = GetWindowLongPtr(handle, GWL_STYLE);
+
+    // Modify the window style to a pop-up window
+    lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+    lStyle |= WS_POPUP;
+
+    // Apply the new style
+    SetWindowLongPtr(handle, GWL_STYLE, lStyle);
+
+    // Redraw the window so the new style takes effect
+    // SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+    return Napi::Boolean::New(env, true);
+}
+
+
 
 Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set (Napi::String::New (env, "getActiveWindow"), Napi::Function::New (env, getActiveWindow));
@@ -469,6 +496,7 @@ Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set (Napi::String::New (env, "getProcessMainWindow"), Napi::Function::New (env, getProcessMainWindow));
     exports.Set(Napi::String::New(env, "forceWindowPaint"), Napi::Function::New(env, forceWindowPaint));
     exports.Set(Napi::String::New(env, "hideInstantly"), Napi::Function::New(env, hideInstantly));
+    exports.Set(Napi::String::New(env, "setWindowAsPopup"), Napi::Function::New(env, setWindowAsPopup));
 
     return exports;
 }
