@@ -10,12 +10,11 @@ on:
       - "*"
 
 jobs:
-  release:
+  build:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
       - uses: actions/setup-node@v3
@@ -30,6 +29,10 @@ jobs:
           npm install
           npm run build
 
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Semantic Release
         run: |
           npx semantic-release
