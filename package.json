@@ -18,6 +18,7 @@
   "files": [
     "./dist/**/*",
     "./binding.gyp",
+    "./lib/**/*",
     "./build/**/*"
   ],
   "scripts": {
