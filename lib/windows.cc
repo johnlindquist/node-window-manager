@@ -467,6 +467,59 @@ Napi::Boolean setWindowAsPopup(const Napi::CallbackInfo& info) {
     return Napi::Boolean::New(env, true);
 }
 
+// The enum flag for DwmSetWindowAttribute's second parameter, which tells the function what attribute to set.
+enum DWMWINDOWATTRIBUTE
+{
+    DWMWA_WINDOW_CORNER_PREFERENCE = 33
+};
+
+// The DWM_WINDOW_CORNER_PREFERENCE enum for DwmSetWindowAttribute's third parameter, which tells the function
+// what value of the enum to set.
+enum DWM_WINDOW_CORNER_PREFERENCE
+{
+    DWMWCP_DEFAULT      = 0,
+    DWMWCP_DONOTROUND   = 1,
+    DWMWCP_ROUND        = 2,
+    DWMWCP_ROUNDSMALL   = 3
+};
+
+// Import dwmapi.dll and define DwmSetWindowAttribute in C++ corresponding to the native function.
+extern "C" __declspec(dllimport)
+HRESULT DwmSetWindowAttribute(HWND hwnd,
+                              DWMWINDOWATTRIBUTE dwAttribute,
+                              LPCVOID pvAttribute,
+                              DWORD cbAttribute);
+
+Napi::Boolean setWindowAsPopupWithRoundedCorners(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1 || !info[0].IsNumber()) {
+        Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
+    }
+
+    uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
+    HWND handle = reinterpret_cast<HWND>(handleNumber);
+
+    // Get the current window style
+    LONG lStyle = GetWindowLongPtr(handle, GWL_STYLE);
+
+    // Modify the window style to a pop-up window
+    lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+    lStyle |= WS_POPUP;
+
+    // Apply the new style
+    SetWindowLongPtr(handle, GWL_STYLE, lStyle);
+
+    // Set the corner preference to be rounded
+    DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUND;
+    DwmSetWindowAttribute(handle, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
+
+    // Redraw the window so the new style takes effect
+    SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+    return Napi::Boolean::New(env, true);
+}
+
 
 
 Napi::Object Init (Napi::Env env, Napi::Object exports) {
@@ -497,6 +550,7 @@ Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set(Napi::String::New(env, "forceWindowPaint"), Napi::Function::New(env, forceWindowPaint));
     exports.Set(Napi::String::New(env, "hideInstantly"), Napi::Function::New(env, hideInstantly));
     exports.Set(Napi::String::New(env, "setWindowAsPopup"), Napi::Function::New(env, setWindowAsPopup));
+    exports.Set(Napi::String::New(env, "setWindowAsPopupWithRoundedCorners"), Napi::Function::New(env, setWindowAsPopupWithRoundedCorners));
 
     return exports;
 }

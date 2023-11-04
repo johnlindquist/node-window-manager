@@ -105,6 +105,12 @@ class WindowManager extends EventEmitter {
     let handleNumber = handle.readUInt32LE(0)
     return addon.setWindowAsPopup(handleNumber)
   }
+
+  setWindowAsPopupWithRoundedCorners = (handle: Buffer) => {
+    if (!addon || !addon.setWindowAsPopup) return
+    let handleNumber = handle.readUInt32LE(0)
+    return addon.setWindowAsPopupWithRoundedCorners(handleNumber)
+  }
 }
 
 const windowManager = new WindowManager()
