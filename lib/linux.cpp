@@ -10,11 +10,6 @@ struct Process {
     std::string path;
 };
 
-template <typename T>
-T getValueFromCallbackData (const Napi::CallbackInfo& info, unsigned handleIndex) {
-    return reinterpret_cast<T> (info[handleIndex].As<Napi::Number> ().Int64Value ());
-}
-
 Process getWindowProcess (Window handle) {
     throw "getWindowProcess is not implemented on Linux";
 }
@@ -30,12 +25,13 @@ Napi::Number getProcessMainWindow (const Napi::CallbackInfo& info) {
 
     auto handle = find_top_window (process_id);
 
-    return Napi::Number::New (env, reinterpret_cast<int64_t> (handle));
+    return Napi::Number::New (env, static_cast<int64_t> (handle));
 }
 
 Napi::Number createProcess (const Napi::CallbackInfo& info) {
     throw "createProcess is not implemented on Linux";
 }
+
 
 Napi::Number getActiveWindow (const Napi::CallbackInfo& info) {
     Napi::Env env{ info.Env () };
@@ -57,8 +53,14 @@ Napi::Number getActiveWindow (const Napi::CallbackInfo& info) {
 
     XCloseDisplay(display);
 
-    return Napi::Number::New (env, reinterpret_cast<int64_t> (active));
+    return Napi::Number::New (env, static_cast<int64_t> (active));
 }
+
+template <typename T>
+T getValueFromCallbackData (const Napi::CallbackInfo& info, unsigned handleIndex) {
+    return static_cast<T> (info[handleIndex].As<Napi::Number> ().Int64Value ());
+}
+
 
 Napi::Object getWindowBounds (const Napi::CallbackInfo& info) {
     Napi::Env env{ info.Env () };
