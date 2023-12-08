@@ -495,18 +495,10 @@ Napi::Boolean setWindowAsPopupWithRoundedCorners(const Napi::CallbackInfo& info)
 
     if (info.Length() < 1 || !info[0].IsNumber()) {
         Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
-        return Napi::Boolean::New(env, false);
     }
 
     uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
     HWND handle = reinterpret_cast<HWND>(handleNumber);
-
-    // Testing capturing shadow style
-    // Ensure WS_EX_LAYERED is set to preserve the shadow
-    LONG exStyle = GetWindowLongPtr(handle, GWL_EXSTYLE);
-    exStyle |= WS_EX_LAYERED; // Ensure WS_EX_LAYERED is set
-    SetWindowLongPtr(handle, GWL_EXSTYLE, exStyle);
-    // End testing caputuring shadow style
 
     // Get the current window style
     LONG lStyle = GetWindowLongPtr(handle, GWL_STYLE);
