@@ -495,20 +495,27 @@ Napi::Boolean setWindowAsPopupWithRoundedCorners(const Napi::CallbackInfo& info)
 
     if (info.Length() < 1 || !info[0].IsNumber()) {
         Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
+        return Napi::Boolean::New(env, false);
     }
 
     uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
     HWND handle = reinterpret_cast<HWND>(handleNumber);
 
-    // Get the current window style
+    // Get the current window styles
     LONG lStyle = GetWindowLongPtr(handle, GWL_STYLE);
+    LONG lExStyle = GetWindowLongPtr(handle, GWL_EXSTYLE);
 
-    // Modify the window style to a pop-up window
+    // Modify the window style to a pop-up window and apply WS_EX_COMPOSITED
     lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
     lStyle |= WS_POPUP;
+    lExStyle |= WS_EX_COMPOSITED;
 
-    // Apply the new style
+    // Apply the new styles without forcing a redraw
     SetWindowLongPtr(handle, GWL_STYLE, lStyle);
+    SetWindowLongPtr(handle, GWL_EXSTYLE, lExStyle);
+
+    // Temporarily set the window as topmost to prevent focus loss
+    SetWindowPos(handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
     // Set the corner preference to be rounded
     DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUND;
@@ -516,6 +523,9 @@ Napi::Boolean setWindowAsPopupWithRoundedCorners(const Napi::CallbackInfo& info)
 
     // Redraw the window so the new style takes effect
     SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+    // Remove the topmost style if you don't want the window to always be on top
+    SetWindowPos(handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
     return Napi::Boolean::New(env, true);
 }
