@@ -510,22 +510,53 @@ Napi::Boolean setWindowAsPopupWithRoundedCorners(const Napi::CallbackInfo& info)
     lStyle |= WS_POPUP;
     lExStyle |= WS_EX_COMPOSITED;
 
-    // Apply the new styles without forcing a redraw
+    // Apply the new styles
     SetWindowLongPtr(handle, GWL_STYLE, lStyle);
     SetWindowLongPtr(handle, GWL_EXSTYLE, lExStyle);
-
-    // Temporarily set the window as topmost to prevent focus loss
-    SetWindowPos(handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
     // Set the corner preference to be rounded
     DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUND;
     DwmSetWindowAttribute(handle, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
 
     // Redraw the window so the new style takes effect
-    SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 
-    // Remove the topmost style if you don't want the window to always be on top
-    SetWindowPos(handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    return Napi::Boolean::New(env, true);
+}
+
+// This isn't working. Still trying to figure out how to disable all the zoom/fade animations on windows caused by these global settings:
+// "Animate windows when minimizing and maximizing"
+// "Animate controls and elements inside windows"
+Napi::Boolean showInstantly(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1 || !info[0].IsNumber()) {
+        Napi::TypeError::New(env, "Number expected").ThrowAsJavaScriptException();
+        return Napi::Boolean::New(env, false);
+    }
+
+    uint32_t handleNumber = info[0].As<Napi::Number>().Uint32Value();
+    HWND handle = reinterpret_cast<HWND>(handleNumber);
+
+    // Disable the "Animate controls and elements inside windows" animation
+    ANIMATIONINFO animationInfo = { sizeof(animationInfo) };
+    animationInfo.iMinAnimate = 0;
+    SystemParametersInfo(SPI_SETANIMATION, sizeof(animationInfo), &animationInfo, 0);
+
+    // Show the window instantly without any animation
+    SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_SHOWWINDOW | SWP_FRAMECHANGED);
+
+    // Bring the window to the foreground and activate it
+    SetForegroundWindow(handle);
+    SetActiveWindow(handle);
+
+    // Restore the animation settings
+    animationInfo.iMinAnimate = 1;
+    SystemParametersInfo(SPI_SETANIMATION, sizeof(animationInfo), &animationInfo, 0);
+
+
+    // Redraw window
+    RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
 
     return Napi::Boolean::New(env, true);
 }
@@ -561,7 +592,7 @@ Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set(Napi::String::New(env, "hideInstantly"), Napi::Function::New(env, hideInstantly));
     exports.Set(Napi::String::New(env, "setWindowAsPopup"), Napi::Function::New(env, setWindowAsPopup));
     exports.Set(Napi::String::New(env, "setWindowAsPopupWithRoundedCorners"), Napi::Function::New(env, setWindowAsPopupWithRoundedCorners));
-
+    exports.Set(Napi::String::New(env, "showInstantly"), Napi::Function::New(env, showInstantly));
     return exports;
 }
 
