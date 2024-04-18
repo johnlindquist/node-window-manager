@@ -205,6 +205,24 @@ Napi::String getWindowTitle(const Napi::CallbackInfo &info) {
   return Napi::String::New(env, "");
 }
 
+Napi::String getWindowName(const Napi::CallbackInfo &info) {
+  Napi::Env env{info.Env()};
+
+  int handle = info[0].As<Napi::Number>().Int32Value();
+
+  auto wInfo = getWindowInfo(handle);
+
+  if (wInfo) {
+    NSString *windowName = wInfo[(id)kCGWindowName];
+    if (!windowName) {
+      return Napi::String::New(env, "");
+    }
+    return Napi::String::New(env, [windowName UTF8String]);
+  }
+
+  return Napi::String::New(env, "");
+}
+
 Napi::Object getWindowBounds(const Napi::CallbackInfo &info) {
    Napi::Env env{info.Env()};
 
@@ -320,6 +338,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
                 Napi::Function::New(env, getWindowBounds));
     exports.Set(Napi::String::New(env, "getWindowTitle"),
                 Napi::Function::New(env, getWindowTitle));
+    exports.Set(Napi::String::New(env, "getWindowName"),
+                Napi::Function::New(env, getWindowName))
     exports.Set(Napi::String::New(env, "initWindow"),
                 Napi::Function::New(env, initWindow));
     exports.Set(Napi::String::New(env, "bringWindowToTop"),
