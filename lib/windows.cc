@@ -217,6 +217,21 @@ Napi::String getWindowTitle (const Napi::CallbackInfo& info) {
     return Napi::String::New (env, title);
 }
 
+Napi::String getWindowName (const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    auto handle{ getValueFromCallbackData<HWND> (info, 0) };
+
+    wchar_t name[256];
+
+    GetWindowTextW(handle, name, sizeof(title));
+
+    std::wstring ws(name);
+    std::string str(ws.begin(), ws.end());
+
+  return Napi::String::New(env, str);
+}
+
 Napi::Number getWindowOpacity (const Napi::CallbackInfo& info) {
     Napi::Env env{ info.Env () };
 
@@ -581,6 +596,7 @@ Napi::Object Init (Napi::Env env, Napi::Object exports) {
     exports.Set (Napi::String::New (env, "initWindow"), Napi::Function::New (env, initWindow));
     exports.Set (Napi::String::New (env, "getWindowBounds"), Napi::Function::New (env, getWindowBounds));
     exports.Set (Napi::String::New (env, "getWindowTitle"), Napi::Function::New (env, getWindowTitle));
+    exports.Set (Napi::String::New (env, "getWindowName"), Napi::Function::New (env, getWindowName));
     exports.Set (Napi::String::New (env, "getWindowOwner"), Napi::Function::New (env, getWindowOwner));
     exports.Set (Napi::String::New (env, "getWindowOpacity"), Napi::Function::New (env, getWindowOpacity));
     exports.Set (Napi::String::New (env, "getMonitorInfo"), Napi::Function::New (env, getMonitorInfo));

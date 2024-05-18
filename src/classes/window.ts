@@ -59,6 +59,11 @@ export class Window {
     return addon.getWindowTitle(this.id)
   }
 
+  getName(): string {
+    if (!addon) return
+    return addon.getWindowName(this.id);
+  }
+
   getMonitor(): Monitor | EmptyMonitor {
     if (!addon || !addon.getMonitorFromWindow) return new EmptyMonitor()
     return new Monitor(addon.getMonitorFromWindow(this.id))
