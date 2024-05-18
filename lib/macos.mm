@@ -6,6 +6,7 @@
 #include <map>
 #include <thread>
 #include <fstream>
+#include <iostream> // Add this line at the top of the file
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
@@ -147,12 +148,14 @@ Napi::Number getActiveWindow(const Napi::CallbackInfo &info) {
 
     auto app = [NSRunningApplication runningApplicationWithProcessIdentifier: [ownerPid intValue]];
 
-    if (app && ![app isActive]) {
-      continue;
+    if (app) {
+      if ([app isActive]) {
+        CFRelease(windowList);
+        return Napi::Number::New(env, [windowNumber intValue]);
+      }
+    } else {
+      // std::cerr << "App is null for PID: " << [ownerPid intValue] << std::endl;
     }
-
-    CFRelease(windowList);
-    return Napi::Number::New(env, [windowNumber intValue]);
   }
 
   if (windowList) {
@@ -339,7 +342,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports.Set(Napi::String::New(env, "getWindowTitle"),
                 Napi::Function::New(env, getWindowTitle));
     exports.Set(Napi::String::New(env, "getWindowName"),
-                Napi::Function::New(env, getWindowName))
+                Napi::Function::New(env, getWindowName));
     exports.Set(Napi::String::New(env, "initWindow"),
                 Napi::Function::New(env, initWindow));
     exports.Set(Napi::String::New(env, "bringWindowToTop"),
