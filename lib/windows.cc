@@ -83,7 +83,7 @@ Napi::Number getProcessMainWindow (const Napi::CallbackInfo& info) {
 
     auto handle = find_top_window (process_id);
 
-    return Napi::Number::New (env, reinterpret_cast<int64_t> (handle));
+    return Napi::Number::New (env, reinterpret_cast<uintptr_t> (handle));
 }
 
 Napi::Number createProcess (const Napi::CallbackInfo& info) {
@@ -110,7 +110,7 @@ Napi::Number getActiveWindow (const Napi::CallbackInfo& info) {
 
     auto handle = GetForegroundWindow ();
 
-    return Napi::Number::New (env, reinterpret_cast<int64_t> (handle));
+    return Napi::Number::New (env, reinterpret_cast<uintptr_t> (handle));
 }
 
 std::vector<int64_t> _windows;
