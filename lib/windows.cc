@@ -83,7 +83,7 @@ Napi::Number getProcessMainWindow (const Napi::CallbackInfo& info) {
 
     auto handle = find_top_window (process_id);
 
-    return Napi::Number::New (env, reinterpret_cast<uintptr_t> (handle));
+    return Napi::Number::New (env, reinterpret_cast<int64_t> (handle));
 }
 
 Napi::Number createProcess (const Napi::CallbackInfo& info) {
@@ -110,7 +110,7 @@ Napi::Number getActiveWindow (const Napi::CallbackInfo& info) {
 
     auto handle = GetForegroundWindow ();
 
-    return Napi::Number::New (env, reinterpret_cast<uintptr_t> (handle));
+    return Napi::Number::New (env, reinterpret_cast<int64_t> (handle));
 }
 
 std::vector<int64_t> _windows;
@@ -224,12 +224,12 @@ Napi::String getWindowName (const Napi::CallbackInfo& info) {
 
     wchar_t name[256];
 
-    GetWindowTextW(handle, name, sizeof(title));
+    GetWindowTextW(handle, name, sizeof(name) / sizeof(name[0]));
 
     std::wstring ws(name);
     std::string str(ws.begin(), ws.end());
 
-  return Napi::String::New(env, str);
+    return Napi::String::New(env, str);
 }
 
 Napi::Number getWindowOpacity (const Napi::CallbackInfo& info) {
